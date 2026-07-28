@@ -433,3 +433,43 @@ codyssey-m1-1/
 | **홀드아웃** | 일부 구간을 떼어 두고 학습에 안 쓰는 것. 예측 성능을 정직하게 재기 위해 |
 | **MAPE** | 평균 절대 백분율 오차. 실제값 대비 몇 % 벗어났는지 |
 | **편향(bias)** | 부호를 살린 평균 오차. 양수면 계속 과대예측했다는 뜻 |
+
+---
+
+## 11. 준비물 (전제 지식 0)
+
+| 확인 항목 | 없으면 |
+|---|---|
+| Python 3.10 이상 | [python.org](https://www.python.org/downloads/) 에서 설치("Add to PATH" 체크) |
+| Git | [git-scm.com](https://git-scm.com/) |
+| matplotlib | `pip install -r requirements.txt` |
+| 한글 폰트 | Windows·macOS 는 기본 제공. Linux 는 `sudo apt install fonts-nanum` |
+| 브라우저 | 대시보드(`output/dashboard.html`)를 열 때만. 인터넷 연결은 필요 없습니다 |
+
+데이터는 저장소에 동봉되어 있어 **따로 내려받을 것이 없습니다.**
+
+---
+
+## 12. 따라 하기
+
+1. **내려받고 설치합니다.**
+   ```bash
+   git clone https://github.com/dicia-jhoh/codyssey-m1-1.git
+   cd codyssey-m1-1 && pip install -r requirements.txt
+   ```
+2. **분석을 돌립니다.** 콘솔에 6단계 진행과 연도별 통계표가 나옵니다.
+   ```bash
+   python run_analysis.py
+   ```
+3. **차트를 순서대로 엽니다.** `output/01_series_trend.png` 부터 보면 이 리포트 4장의
+   흐름과 같습니다.
+4. **관찰과 해석의 차이를 확인합니다.** 4장에서 같은 그래프에 대해 "관찰"과 "해석(가설)"이
+   어떻게 나뉘는지 보세요. 관찰에는 수치만, 해석에는 그 수치로 말할 수 있는 것과 **없는
+   것**이 적혀 있습니다.
+5. **대시보드로 직접 바꿔 봅니다.** `output/dashboard.html` 을 열고 이동평균 창을 12에서
+   3으로 줄여 보세요. 추세선이 원계열을 따라가기 시작합니다 — 왜 12개월이어야 하는지가
+   화면에 나타납니다.
+6. **코드 값을 바꿔 봅니다.** `src/analysis.py` 의 `MA_WINDOW` 나 `IQR_MULTIPLIER` 를
+   고치고 다시 돌리면 결과가 어떻게 달라지는지 볼 수 있습니다.
+7. **다른 데이터로 돌려 봅니다.** `data/` 에 `Month,Passengers` 형식의 CSV 를 넣고
+   `src/analysis.py` 의 `DATA_FILE` 을 바꾸면 같은 분석이 그대로 돕니다.
