@@ -170,6 +170,40 @@ def seasonal_index(series: Series) -> dict[int, float]:
     return {month: round(statistics.fmean(vals), 3) for month, vals in sorted(ratios.items())}
 
 
+def seasonal_index_by_half(series: Series) -> dict:
+    """보너스 심화 — 계절 지수를 전반기/후반기로 나눠 계산한다.
+
+    **왜 나누나**: 전체 기간 계절 지수 하나로는 "변동성이 커졌다"의 원인을 알 수 없다.
+    여름 성수기가 더 강해진 것인지, 비수기가 상대적으로 더 약해진 것인지 가리려면
+    **같은 계산을 두 구간에 따로** 해서 비교해야 한다(REPORT 4장 Q3 의 미해결 부분).
+
+    구간을 절반으로 가르는 이유: 두 구간의 표본 수를 같게 맞춰야 비교가 공정하다.
+    한쪽이 3년, 다른 쪽이 9년이면 짧은 쪽 지수가 덜 안정적이라 차이가 과장된다.
+    """
+    mid = len(series) // 2
+    early = Series(series.months[:mid], series.values[:mid])
+    late = Series(series.months[mid:], series.values[mid:])
+
+    early_index = seasonal_index(early)
+    late_index = seasonal_index(late)
+    delta = {month: round(late_index[month] - early_index[month], 3) for month in early_index}
+
+    peak_months = [6, 7, 8, 9]  # 지수 1.0 이상인 성수기
+    low_months = [m for m in early_index if m not in peak_months]
+    return {
+        "early_period": f"{early.months[0]} ~ {early.months[-1]}",
+        "late_period": f"{late.months[0]} ~ {late.months[-1]}",
+        "early": early_index,
+        "late": late_index,
+        "delta": delta,
+        # 성수기·비수기 평균이 각각 어느 방향으로 움직였는지 — 이것이 Q3 의 답이다
+        "peak_shift": round(statistics.fmean([delta[m] for m in peak_months]), 3),
+        "low_shift": round(statistics.fmean([delta[m] for m in low_months]), 3),
+        "spread_early": round(max(early_index.values()) - min(early_index.values()), 3),
+        "spread_late": round(max(late_index.values()) - min(late_index.values()), 3),
+    }
+
+
 def yearly_stats(series: Series) -> list[dict]:
     """연도별 합계·평균·최댓값·변동성 — 구간별 통계."""
     by_year: dict[int, list[float]] = {}

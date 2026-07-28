@@ -199,3 +199,53 @@ def plot_decompose_forecast(series, parts: dict, forecast: dict, out_dir: str) -
     fig.savefig(path, dpi=DPI, facecolor="white")
     plt.close(fig)
     return path
+
+
+def plot_seasonal_shift(halves: dict, out_dir: str) -> str:
+    """⑤ 보너스 심화 — 전반기 vs 후반기 계절 지수 비교.
+
+    같은 축에 두 구간을 겹쳐 그리고, 아래에 차이(후반기−전반기)를 막대로 놓는다.
+    **겹쳐 그리기만 하면 미세한 차이가 안 보이므로** 차이를 따로 그린다 —
+    0.05 정도의 변화는 1.0 근처 선 두 개로는 눈에 들어오지 않는다.
+    """
+    setup_korean_font()
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 7), height_ratios=[3, 2])
+
+    months = list(halves["early"])
+    labels = [f"{m}월" for m in months]
+    early = [halves["early"][m] for m in months]
+    late = [halves["late"][m] for m in months]
+
+    ax1.plot(labels, early, marker="o", color=MUTED, linewidth=2,
+             label=f"전반기 {halves['early_period']}")
+    ax1.plot(labels, late, marker="s", color=TREND_COLOR, linewidth=2.4,
+             label=f"후반기 {halves['late_period']}")
+    ax1.axhline(1.0, color="#333333", linewidth=0.9, linestyle="--", label="연평균(1.0)")
+    ax1.set_ylabel("계절 지수")
+    ax1.set_title("계절 지수 변화 — 여름은 더 강해지고 봄은 약해졌다")
+    ax1.legend(loc="upper left", fontsize=9)
+    ax1.grid(axis="y", linestyle=":", alpha=0.4)
+    ax1.spines[["top", "right"]].set_visible(False)
+
+    delta = [halves["delta"][m] for m in months]
+    # 늘어난 달과 줄어든 달을 색으로 가른다 — 부호를 눈으로 세지 않게
+    colors = [ACCENT if d >= 0 else MUTED for d in delta]
+    ax2.bar(labels, delta, color=colors)
+    ax2.axhline(0, color="#333333", linewidth=0.9)
+    ax2.set_ylabel("지수 변화")
+    # ⚠ 제목에 유니코드 마이너스(U+2212 "−")를 쓰면 네모로 나온다. rcParams 의
+    # axes.unicode_minus 는 **축 눈금에만** 적용되고, 내가 직접 쓴 문자열은 손대지 않는다.
+    # 실제로 첫 렌더에서 "후반기 □ 전반기" 가 나왔다 — ASCII 하이픈으로 바꿔 해결했다.
+    ax2.set_title(
+        f"후반기 - 전반기  ·  성수기 평균 {halves['peak_shift']:+.3f} / "
+        f"비수기 평균 {halves['low_shift']:+.3f}"
+    )
+    ax2.tick_params(axis="x", rotation=45)
+    ax2.grid(axis="y", linestyle=":", alpha=0.4)
+    ax2.spines[["top", "right"]].set_visible(False)
+
+    fig.tight_layout()
+    path = os.path.join(out_dir, "05_seasonal_shift.png")
+    fig.savefig(path, dpi=DPI, facecolor="white")
+    plt.close(fig)
+    return path

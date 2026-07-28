@@ -43,7 +43,9 @@ def main() -> int:
     print("[3/6] 분해·예측(보너스)")
     parts = analysis.decompose(series)
     forecast = analysis.seasonal_naive_forecast(series)
+    halves = analysis.seasonal_index_by_half(series)
     print(f"      예측 MAPE {forecast['mape']}% · MAE {forecast['mae']} · 편향 {forecast['bias']:+.1f}")
+    print(f"      계절 지수 이동 — 성수기 {halves['peak_shift']:+.3f} · 비수기 {halves['low_shift']:+.3f}")
 
     print("[4/6] 차트 생성")
     made = [
@@ -51,6 +53,7 @@ def main() -> int:
         plots.plot_change_rate(series, mom, yoy, OUT_DIR),
         plots.plot_seasonality(indices, years, OUT_DIR),
         plots.plot_decompose_forecast(series, parts, forecast, OUT_DIR),
+        plots.plot_seasonal_shift(halves, OUT_DIR),
     ]
     for path in made:
         print(f"      {path}")
